@@ -32,17 +32,25 @@ export function AttendeeList() {
     const totalPages = Math.ceil(total / 10)
 
     useEffect(() => {
-        fetch('http://localhost:3333/events/9e9bd979-9d10-4915-b339-3786b1634f33/attendees')
+        const url = new URL('http://localhost:3333/events/9e9bd979-9d10-4915-b339-3786b1634f33/attendees')
+        url.searchParams.set('pageIndex', String(page - 1))
+
+        if (search.length > 0) {
+        url.searchParams.set('query', search)
+    }
+
+        fetch(url)
         .then(response => response.json())
         .then(data => {
             console.log(data)
             setAttendees(data.attendees)
             setTotal(data.total)
         })
-    }, [page])
+    }, [page, search])
 
     function onSearchInputChanged(event: ChangeEvent<HTMLInputElement>) {
         setSearch(event.target.value)
+        setPage(1)
     }
     
     function goToFirstPage() {
@@ -69,10 +77,12 @@ export function AttendeeList() {
             <h1 className="text-2xl font-bold">Participantes</h1>
                 <div className="px-3 w-72 py-1.5 border border-white/10 rounded-lg flex items-center gap-3">
                     <Search className="size-4 text-emerald-300" />
-                    <input onChange={onSearchInputChanged} className="bg-transparent flex-1 border-none outline-none p-0 text-sm" placeholder="buscar participante..."/>
+                    <input onChange={onSearchInputChanged} 
+                    className="bg-transparent flex-1 border-none outline-none p-0 text-sm focus:ring-0" 
+                    placeholder="buscar participante..."/>
                 </div>
 
-                {search}
+            
             </div>
 
                 <Table>
@@ -118,7 +128,7 @@ export function AttendeeList() {
                         <tfoot>
                             <tr>
                                 <TableCell colSpan={3}>
-                                    Mostrando 10 de {total} items
+                                    Mostrando {attendees.length} de {total} items
                                 </TableCell>
                                 <TableCell className="text-right" colSpan={3}>
 
